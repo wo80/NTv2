@@ -4,6 +4,7 @@ namespace ProjNet.NTv2
     using ProjNet.IO;
     using System;
     using System.Collections.Generic;
+    using System.IO;
     using System.Linq;
     using static MathHelper;
 
@@ -50,15 +51,29 @@ namespace ProjNet.NTv2
         /// <returns>The grid file.</returns>
         public static GridFile Open(string file, bool binaryFormat)
         {
+            using (var stream = File.OpenRead(file))
+            {
+                return Open(stream, binaryFormat);
+            }
+        }
+
+        /// <summary>
+        /// Read a NTv2 grid file from given stream.
+        /// </summary>
+        /// <param name="stream">The grid file stream.</param>
+        /// <param name="binaryFormat">Indicates whether the file should be opened as binary.</param>
+        /// <returns>The grid file.</returns>
+        public static GridFile Open(Stream stream, bool binaryFormat)
+        {
             GridFile g;
 
             if (binaryFormat)
             {
-                g = new BinaryGridFileReader().Read(file);
+                g = new BinaryGridFileReader().Read(stream);
             }
             else
             {
-                g = new TextGridFileReader().Read(file);
+                g = new TextGridFileReader().Read(stream);
             }
 
             g.ProcessGrids();
@@ -92,6 +107,12 @@ namespace ProjNet.NTv2
 
             // The parent grid that contains the coordinate.
             var grid = grids.Where(g => g.parent == null && g.Contains(qlon, qlat)).FirstOrDefault();
+
+            if (grid == null)
+            {
+                // TODO: throw?
+                return;
+            }
 
             // TODO: search sub-grids.
 

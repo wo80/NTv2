@@ -26,6 +26,18 @@ namespace ProjNet.IO
         public GridFile Read(string file)
         {
             using (var stream = File.OpenRead(file))
+            {
+                return Read(stream);
+            }
+        }
+
+        /// <summary>
+        /// Reads a grid file from given stream.
+        /// </summary>
+        /// <param name="stream">The stream containing the binary grid data.</param>
+        /// <returns>The grid file.</returns>
+        public GridFile Read(Stream stream)
+        {
             using (var reader = new BinaryReader(stream))
             {
                 var header = ReadHeader(reader);

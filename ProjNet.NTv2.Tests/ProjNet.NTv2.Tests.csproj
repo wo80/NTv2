@@ -7,6 +7,16 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="BETA2007.gsb" />
+    <None Remove="SRID.csv" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="BETA2007.gsb" />
+    <EmbeddedResource Include="SRID.csv" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="NUnit" Version="3.12.0" />
     <PackageReference Include="NUnit3TestAdapter" Version="3.17.0" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.5.0" />
