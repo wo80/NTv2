@@ -114,7 +114,15 @@ namespace ProjNet.NTv2
                 return;
             }
 
-            // TODO: search sub-grids.
+            // Search in sub-grids (only first level for now).
+            var sub = grid.Children.Where(g => g.Contains(qlon, qlat)).FirstOrDefault();
+
+            // TODO: search sub-grids recursively.
+
+            if (sub != null)
+            {
+                grid = sub;
+            }
 
             if (inverse)
             {
