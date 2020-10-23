@@ -11,9 +11,9 @@ A concatenated transform of two projected coordinate systems
 ```
 gets replaced with
 ```
-[0] Source CS (PROJ)   -> Source CS (GEOG)
-[1] Grid Tranformation -> Target CS (GEOG)
-[2] Target CS (GEOG)   -> Target CS (PROJ)
+[0] Source CS (PROJ) -> Source CS (GEOG)
+[1] Source CS (GEOG) -> Grid Tranformation -> Target CS (GEOG)
+[2] Target CS (GEOG) -> Target CS (PROJ)
 ```
 
 A concatenated transform of two geographic coordinate systems
@@ -23,7 +23,7 @@ A concatenated transform of two geographic coordinate systems
 ```
 gets replaced with
 ```
-[0] Grid Tranformation -> Target CS (GEOG)
+[0] Source CS (GEOG) -> Grid Tranformation -> Target CS (GEOG)
 ```
 
 Sub-grid functionally isn't implemented completely. Only the first level of sub-grids is considered.
