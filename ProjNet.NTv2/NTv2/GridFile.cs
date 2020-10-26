@@ -100,7 +100,8 @@ namespace ProjNet.NTv2
         /// <param name="lon">The longitude.</param>
         /// <param name="lat">The latitude.</param>
         /// <param name="inverse">Indicates whether to use the inverse transform.</param>
-        public void Transform(ref double lon, ref double lat, bool inverse)
+        /// <returns>Returns true, if the grid transformation succeeded, otherwise false.</returns>
+        public bool Transform(ref double lon, ref double lat, bool inverse)
         {
             double qlon = lon;
             double qlat = lat;
@@ -110,8 +111,7 @@ namespace ProjNet.NTv2
 
             if (grid == null)
             {
-                // TODO: throw?
-                return;
+                return false;
             }
 
             // Search in sub-grids (only first level for now).
@@ -126,29 +126,31 @@ namespace ProjNet.NTv2
 
             if (inverse)
             {
-                Inverse(grid, ref lon, ref lat);
+                return Inverse(grid, ref lon, ref lat);
             }
             else
             {
-                Forward(grid, ref lon, ref lat);
+                return Forward(grid, ref lon, ref lat);
             }
         }
 
-        private void Forward(Grid grid, ref double lon, ref double lat)
+        private bool Forward(Grid grid, ref double lon, ref double lat)
         {
             double slat = 0.0;
             double slon = 0.0;
 
             if (!GetShift(lon, lat, grid, ref slon, ref slat))
             {
-                // TODO: throw?
+                return false;
             }
 
             lat += slat;
             lon += slon;
+
+            return true;
         }
 
-        private void Inverse(Grid grid, ref double lon, ref double lat)
+        private bool Inverse(Grid grid, ref double lon, ref double lat)
         {
             // Find the inverse shift using a fixed point iteration.
             const int MAX_ITERATIONS = 10;
@@ -164,7 +166,10 @@ namespace ProjNet.NTv2
 
             for (int i = 0; i < MAX_ITERATIONS; i++)
             {
-                GetShift(qlon, qlat, grid, ref slon, ref slat);
+                if (!GetShift(qlon, qlat, grid, ref slon, ref slat))
+                {
+                    return false;
+                }
 
                 elon = (qlon + slon);
                 elat = (qlat + slat);
@@ -186,6 +191,8 @@ namespace ProjNet.NTv2
 
             lat = qlat;
             lon = qlon;
+
+            return true;
         }
 
         private bool GetShift(double lon, double lat, Grid grid, ref double slon, ref double slat)

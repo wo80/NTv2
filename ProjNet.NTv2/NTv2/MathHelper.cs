@@ -4,7 +4,7 @@
 
     static class MathHelper
     {
-        const double EPSILON = 2e-50;
+        const double EPSILON = 1e-12;
 
         public static bool AlmostEqual(double a, double b)
         {

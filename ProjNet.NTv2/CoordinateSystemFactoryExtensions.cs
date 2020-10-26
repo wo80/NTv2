@@ -55,9 +55,10 @@ namespace ProjNet.CoordinateSystems.Transformations
 
                 var list = GetCoordinateTransformationList(ct);
 
-                // list[0] = source projected  -> source geographic
-                // list[1] = source geographic -> target geographic
-                // list[2] = target geographic -> target projected
+                if (list.Count != 3)
+                {
+                    throw new NotSupportedException("No support for grid transformation.");
+                }
 
                 // Replace the geographic transform in the middle with our grid transformation.
                 list[1] = CreateCoordinateTransformation((ICoordinateTransformation)list[1], grid, inverse);
@@ -68,19 +69,15 @@ namespace ProjNet.CoordinateSystems.Transformations
 
                 var list = GetCoordinateTransformationList(ct);
 
-                // list[0] = source geographic -> geocentric
-                // list[1] =        geocentric -> target geographic
+                var gt = CreateCoordinateTransformation((ICoordinateTransformation)list[0], grid, inverse);
 
-                // Replace the geographic transform in the middle with our grid transformation.
-                list[0] = CreateCoordinateTransformation((ICoordinateTransformation)list[0], grid, inverse);
-
-                list.RemoveAt(1);
+                list.Clear();
+                list.Add(gt);
             }
             else
             {
-                throw new NotSupportedException("No support for transforming between the two specified coordinate systems");
+                throw new NotSupportedException("No support for grid transformation.");
             }
-
 
             return ct;
         }
@@ -141,12 +138,12 @@ namespace ProjNet.CoordinateSystems.Transformations
 
         public override MathTransform Inverse()
         {
-            throw new NotImplementedException();
+            return new GridTransformation(grid, !inverse);
         }
 
         public override void Invert()
         {
-            throw new NotImplementedException();
+            inverse = !inverse;
         }
 
         public override void Transform(ref double x, ref double y, ref double z)
