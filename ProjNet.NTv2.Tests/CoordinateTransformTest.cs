@@ -47,5 +47,28 @@ namespace ProjNet.NTv2.Tests
 
             CollectionAssert.AreEqual(expected, actual);
         }
+
+        [Ignore("NAD conversion has large error.")]
+        [DefaultFloatingPointTolerance(1e-6)]
+        public void TestNAD()
+        {
+            var NAD27 = SRIDReader.GetCSbyID(4267);
+            var NAD83 = SRIDReader.GetCSbyID(4269);
+
+            // https://www.killetsoft.de/zip/ntv2/ntv2_0.zip
+            var grid = GridFile.Open(@"ntv2_0.gsb");
+
+            var ct = TransformationFactory.CreateFromCoordinateSystems(NAD27, NAD83, grid, false);
+
+            // http://www.apsalin.com/nad-conversion.aspx
+            // https://www.ngs.noaa.gov/NCAT/
+
+            double[] input = new[] { -79.378243, 43.664087 };
+            double[] expected = new[] { -79.3780316, 43.6641356 };
+
+            var actual = ct.MathTransform.Transform(input);
+
+            CollectionAssert.AreEqual(expected, actual);
+        }
     }
 }
