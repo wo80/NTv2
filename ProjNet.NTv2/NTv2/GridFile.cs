@@ -40,7 +40,7 @@ namespace ProjNet.NTv2
         /// </remarks>
         public static GridFile Open(string file)
         {
-            return Open(file, file.EndsWith(".gsb"));
+            return Open(file, file.EndsWith(".gsb", StringComparison.OrdinalIgnoreCase));
         }
 
         /// <summary>
@@ -278,7 +278,7 @@ namespace ProjNet.NTv2
         private void ProcessGrids()
         {
             lon_min = lat_min = double.MaxValue;
-            lon_max = lat_max = 0.0;
+            lon_max = lat_max = double.MinValue;
 
             var map = new Dictionary<string, Grid>();
 

@@ -56,7 +56,7 @@ namespace ProjNet.NTv2.Tests
             var NAD27 = SRIDReader.GetCSbyID(4267);
             var NAD83 = SRIDReader.GetCSbyID(4269);
 
-            // https://www.killetsoft.de/zip/ntv2/ntv2_0.zip
+            // https://github.com/OSGeo/proj-datumgrid/tree/master/north-america
             var grid = GridFile.Open(@"ntv2_0.gsb");
 
             var ct = TransformationFactory.CreateFromCoordinateSystems(NAD27, NAD83, grid, false);
