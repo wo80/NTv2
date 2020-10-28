@@ -114,15 +114,7 @@ namespace ProjNet.NTv2
                 return false;
             }
 
-            // Search in sub-grids (only first level for now).
-            var sub = grid.Children.Where(g => g.Contains(qlon, qlat)).FirstOrDefault();
-
-            // TODO: search sub-grids recursively.
-
-            if (sub != null)
-            {
-                grid = sub;
-            }
+            grid = SearchSubGrid(grid, qlon, qlat);
 
             if (inverse)
             {
@@ -255,6 +247,29 @@ namespace ProjNet.NTv2
             slon = -slon * dat_conv / 3600.0;
 
             return true;
+        }
+
+        private Grid SearchSubGrid(Grid grid, double qlon, double qlat)
+        {
+            var children = grid.Children;
+
+            if (children.Count == 0)
+            {
+                return grid;
+            }
+
+            // Search in sub-grids. Since sub-grids should not overlap,
+            // there is at most one match.
+            var sub = children.Where(g => g.Contains(qlon, qlat)).FirstOrDefault();
+
+            // TODO: need to take border conditions into account?
+
+            if (sub == null)
+            {
+                return grid;
+            }
+
+            return SearchSubGrid(sub, qlon, qlat);
         }
 
         /// <summary>

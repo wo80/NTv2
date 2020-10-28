@@ -48,6 +48,7 @@ namespace ProjNet.NTv2.Tests
             CollectionAssert.AreEqual(expected, actual);
         }
 
+        [Test]
         [Ignore("NAD conversion has large error.")]
         [DefaultFloatingPointTolerance(1e-6)]
         public void TestNAD()
