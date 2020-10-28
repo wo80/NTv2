@@ -148,7 +148,10 @@ namespace ProjNet.CoordinateSystems.Transformations
 
         public override void Transform(ref double x, ref double y, ref double z)
         {
-            grid.Transform(ref x, ref y, inverse);
+            if (!grid.Transform(ref x, ref y, inverse))
+            {
+                throw new Exception("Grid transfomation failed: given coordinate outside of grid bounds.");
+            }
         }
     }
 }
