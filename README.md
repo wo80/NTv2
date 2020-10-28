@@ -26,6 +26,6 @@ gets replaced with
 [0] Source CS (GEOG) -> Grid Transformation -> Target CS (GEOG)
 ```
 
-Sub-grid functionally isn't implemented completely. Only the first level of sub-grids is considered.
+## Remark
 
 The library was tested only with German grid file `BETA2007.gsb` from http://www.crs-geo.eu/BeTA2007 which converts Gauss-Krueger to ETRS89 / UTM.
