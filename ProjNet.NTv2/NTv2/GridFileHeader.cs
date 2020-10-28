@@ -6,17 +6,17 @@
     public class GridFileHeader
     {
         /// <summary>
-        /// Get the number of grid header records (should be 11).
+        /// Gets the number of grid header records (should be 11).
         /// </summary>
         public int NUM_OREC { get; set; }
 
         /// <summary>
-        /// Get the number of sub-grid header records (should be 11).
+        /// Gets the number of sub-grid header records (should be 11).
         /// </summary>
         public int NUM_SREC { get; set; }
 
         /// <summary>
-        /// Get the number of sub-grid files.
+        /// Gets the number of sub-grid files.
         /// </summary>
         public int NUM_FILE { get; set; }
 
