@@ -154,7 +154,6 @@ namespace ProjNet.NTv2
             double slon = 0.0;
 
             double dlon, dlat; // deltas
-            double elon, elat; // estimates
 
             for (int i = 0; i < MAX_ITERATIONS; i++)
             {
@@ -163,11 +162,8 @@ namespace ProjNet.NTv2
                     return false;
                 }
 
-                elon = (qlon + slon);
-                elat = (qlat + slat);
-
-                dlon = (elon - lon);
-                dlat = (elat - lat);
+                dlon = (qlon + slon) - lon;
+                dlat = (qlat + slat) - lat;
 
                 if (AlmostZero(dlon) && AlmostZero(dlat))
                 {
