@@ -10,6 +10,8 @@ namespace ProjNet.CoordinateSystems.Transformations
 
     public static class CoordinateTransformationFactoryExtensions
     {
+        #region Grid transformation
+
         /// <summary>
         /// Creates a transformation between two coordinate systems.
         /// </summary>
@@ -47,12 +49,10 @@ namespace ProjNet.CoordinateSystems.Transformations
                 throw new ArgumentNullException(nameof(targetCS));
             }
 
-            ICoordinateTransformation ct;
+            var ct = factory.CreateFromCoordinateSystems(sourceCS, targetCS);
 
             if (sourceCS is ProjectedCoordinateSystem && targetCS is ProjectedCoordinateSystem)
             {
-                ct = factory.CreateFromCoordinateSystems(sourceCS as ProjectedCoordinateSystem, targetCS as ProjectedCoordinateSystem);
-
                 var list = GetCoordinateTransformationList(ct);
 
                 if (list.Count != 3)
@@ -61,18 +61,31 @@ namespace ProjNet.CoordinateSystems.Transformations
                 }
 
                 // Replace the geographic transform in the middle with our grid transformation.
-                list[1] = CreateCoordinateTransformation((ICoordinateTransformation)list[1], grid, inverse);
+                list[1] = CreateGridTransformation(list[1].SourceCS, list[1].TargetCS, grid, inverse);
             }
-            else if (sourceCS is GeographicCoordinateSystem && targetCS is GeographicCoordinateSystem)
+            else if (sourceCS is GeographicCoordinateSystem source && targetCS is GeographicCoordinateSystem target)
             {
-                ct = factory.CreateFromCoordinateSystems(sourceCS as GeographicCoordinateSystem, targetCS as GeographicCoordinateSystem);
-
+                return CreateGridTransformation(source, target, grid, inverse);
+            }
+            else if (sourceCS is GeographicCoordinateSystem && targetCS is ProjectedCoordinateSystem)
+            {
                 var list = GetCoordinateTransformationList(ct);
 
-                var gt = CreateCoordinateTransformation((ICoordinateTransformation)list[0], grid, inverse);
+                // list[0] = source geographic -> geocentric
+                // list[1] =        geocentric -> target projected
 
-                list.Clear();
-                list.Add(gt);
+                // Replace the geographic transform with our grid transformation.
+                list[0] = CreateGridTransformation(list[0].SourceCS, list[0].TargetCS, grid, inverse);
+            }
+            else if (sourceCS is ProjectedCoordinateSystem && targetCS is GeographicCoordinateSystem)
+            {
+                var list = GetCoordinateTransformationList(ct);
+
+                // list[0] = source projected -> geocentric
+                // list[1] =        geocentric -> target geographic
+
+                // Replace the geographic transform with our grid transformation.
+                list[1] = CreateGridTransformation(list[1].SourceCS, list[1].TargetCS, grid, inverse);
             }
             else
             {
@@ -81,6 +94,8 @@ namespace ProjNet.CoordinateSystems.Transformations
 
             return ct;
         }
+
+        #endregion
 
         static IList<ICoordinateTransformationCore> GetCoordinateTransformationList(ICoordinateTransformation ct)
         {
@@ -92,66 +107,23 @@ namespace ProjNet.CoordinateSystems.Transformations
             return (IList<ICoordinateTransformationCore>)prop.GetValue(ct.MathTransform);
         }
 
-        static ICoordinateTransformation CreateCoordinateTransformation(ICoordinateTransformation ct, GridFile grid, bool inverse)
+        static ICoordinateTransformation CreateGridTransformation(CoordinateSystem sourceCS, CoordinateSystem targetCS, GridFile grid, bool inverse)
         {
-            var assembly = ct.GetType().Assembly;
+            var assembly = sourceCS.GetType().Assembly;
             var type = assembly.GetType("ProjNet.CoordinateSystems.Transformations.CoordinateTransformation");
 
             var flags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
 
             var instance = Activator.CreateInstance(type, flags, null, new object[]
                 {
-                    ct.SourceCS,
-                    ct.TargetCS,
-                    ct.TransformType,
+                    sourceCS,
+                    targetCS,
+                    TransformType.Other,
                     new GridTransformation(grid, inverse),
-                    ct.Name,
-                    ct.Authority,
-                    ct.AuthorityCode,
-                    ct.AreaOfUse,
-                    ct.Remarks
+                    "", "", -1, "", ""
                 }, CultureInfo.CurrentCulture);
 
             return (ICoordinateTransformation)instance;
-        }
-    }
-
-    class GridTransformation : MathTransform
-    {
-        private bool inverse;
-
-        private GridFile grid;
-
-        public GridTransformation(GridFile grid, bool inverse)
-        {
-            this.inverse = inverse;
-            this.grid = grid;
-        }
-
-        public override int DimSource => 2;
-
-        public override int DimTarget => 2;
-
-        public override string WKT => "";
-
-        public override string XML => "";
-
-        public override MathTransform Inverse()
-        {
-            return new GridTransformation(grid, !inverse);
-        }
-
-        public override void Invert()
-        {
-            inverse = !inverse;
-        }
-
-        public override void Transform(ref double x, ref double y, ref double z)
-        {
-            if (!grid.Transform(ref x, ref y, inverse))
-            {
-                throw new Exception("Grid transfomation failed: given coordinate outside of grid bounds.");
-            }
         }
     }
 }
